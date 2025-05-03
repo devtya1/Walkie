@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connect Walkie</title>
+  <style>
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #0a0a0a;
+      color: #fff;
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      margin: 0;
+      padding-top: 80px; /* Space for fixed heading */
+    }
+
+    /* Fixed Header */
+    .heading {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background-color: #0a0a0a;
+      color: #00ffcc;
+      font-size: 2.5rem;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      font-family: 'Courier New', Courier, monospace;
+      border-bottom: 3px solid #00ffcc;
+      padding: 10px 0;
+      z-index: 1000;
+    }
+
+    #container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      flex-direction: column;
+      max-width: 800px;
+      width: 100%;
+      padding-top: 20px;
+    }
+
+    h1 {
+      font-size: 3rem;
+      color: #00ffcc;
+      margin-bottom: 2rem;
+      font-family: 'Courier New', Courier, monospace;
+      text-shadow: 0 0 10px #00ffcc;
+    }
+
+    #connectBtn {
+      background: linear-gradient(45deg, #00ffcc, #00ccb3);
+      border: none;
+      color: #0f0f0f;
+      padding: 1.5rem 3rem;
+      font-size: 1.2rem;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(0, 255, 204, 0.8);
+      transition: all 0.3s ease;
+    }
+
+    #connectBtn:hover {
+      background: linear-gradient(45deg, #00ccb3, #00ffcc);
+      box-shadow: 0 0 20px rgba(0, 255, 204, 1);
+    }
+
+    #animationArea {
+      margin-top: 2rem;
+      text-align: left;
+      white-space: pre-wrap;
+      max-width: 600px;
+      font-size: 1.2rem;
+      line-height: 1.6;
+      opacity: 0;
+      transition: opacity 1s ease-in;
+    }
+
+    #walkie {
+      width: 160px;
+      height: 320px;
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Walkie_Talkie_Antenna.svg/512px-Walkie_Talkie_Antenna.svg.png');
+      background-size: cover;
+      margin-bottom: 1.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    #walkie:hover {
+      transform: scale(1.05);
+    }
+
+    #batteryBar {
+      position: relative;
+      width: 200px;
+      height: 30px;
+      background-color: #444;
+      border-radius: 5px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    #batteryFill {
+      height: 100%;
+      width: 0;
+      background-color: #00ffcc;
+      border-radius: 5px;
+      transition: width 0.7s ease-in-out;
+    }
+
+  </style>
+</head>
+<body>
+  <!-- Fixed Heading -->
+  <div class="heading">Research & Analysis Wing</div>
+
+  <div id="container">
+    <div id="walkie"></div>
+    
+    <h1>Walkie-Link Terminal</h1>
+
+    <button id="connectBtn">Connect Walkie</button>
+
+    <div id="animationArea"></div>
+
+    <div id="batteryBar"><div id="batteryFill"></div></div>
+  </div>
+
+  <script>
+    const steps = [
+      '🔌 Connecting to device...',
+      '🔍 Scanning COM ports...',
+      '✅ Walkie detected on port COM3',
+      '📡 Handshake initiated...',
+      '🔐 Decoding firmware headers...',
+      '⚙️ Syncing radio configuration...',
+      '🧠 Reading memory map...',
+      '🚀 Launching programming interface...',
+      '✔️ Ready! You may now modify walkie settings.'
+    ];
+
+    const animationArea = document.getElementById('animationArea');
+    const connectBtn = document.getElementById('connectBtn');
+    const batteryFill = document.getElementById('batteryFill');
+
+    connectBtn.addEventListener('click', () => {
+      animationArea.innerText = '';
+      animationArea.style.opacity = 1;
+      batteryFill.style.width = '0%';
+
+      steps.forEach((step, index) => {
+        setTimeout(() => {
+          animationArea.innerText += step + '\n'; // Adds a new line for each step
+          // Fill the battery as the animation progresses
+          batteryFill.style.width = (index + 1) * 11.1 + '%';
+          if (index === steps.length - 1) {
+            // Wait for 0.3s then redirect to dashboard
+            setTimeout(() => {
+              window.location.href = 'dashboard.html';
+            }, 300);
+          }
+        }, 700 * index);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Walkie Talkie Hacker Dashboard</title>
+  <style>
+    body {
+      background: url('https://www.transparenttextures.com/patterns/grid-2x2.png'), linear-gradient(135deg, #0f0f0f, #111);
+      color: #00ffcc;
+      font-family: 'Courier New', Courier, monospace;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Add some additional styling to make the background more subtle */
+    body::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://www.transparenttextures.com/patterns/grid-2x2.png'); /* Subtle mesh pattern */
+      opacity: 0.1;
+      pointer-events: none;
+    }
+
+    header {
+      background-color: #1a1a1a;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #00ffcc;
+    }
+
+    .status-item {
+      margin-right: 20px;
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+    }
+
+    .icon-bar {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .icon-bar span {
+      background-color: #00ffcc;
+      color: #0f0f0f;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 0.8rem;
+    }
+
+    main {
+      flex-grow: 1;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      overflow-y: auto;
+    }
+
+    .card {
+      background-color: #1b1b1b;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px #00ffcc88;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 20px #00ffcc;
+    }
+
+    .card h2 {
+      font-size: 1.2rem;
+    }
+
+    select, input[type="range"], button {
+      background-color: #0f0f0f;
+      color: #00ffcc;
+      border: 1px solid #00ffcc;
+      padding: 5px;
+      border-radius: 5px;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    button:hover {
+      background-color: #00ffcc;
+      color: #0f0f0f;
+    }
+
+    .save-btn-container {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    #overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #00ffcc;
+      font-size: 1.2rem;
+    }
+
+    .progress-bar {
+      width: 60%;
+      height: 30px;
+      border: 2px solid #00ffcc;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 20px;
+      background: #0f0f0f;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background-color: #00ffcc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: #0f0f0f;
+    }
+
+    @keyframes fillProgress {
+      from { width: 0%; }
+      to { width: 100%; }
+    }
+
+    .log-text {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .close-btn {
+      margin-top: 30px;
+      padding: 10px 20px;
+      background-color: #0f0f0f;
+      border: 1px solid #00ffcc;
+      color: #00ffcc;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .close-btn:hover {
+      background-color: #00ffcc;
+      color: #0f0f0f;
+    }
+
+    /* Blinking effect for the final text */
+    .blinking {
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    /* Dialog Box */
+    .dialog-box {
+      display: none;
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.85);
+      border: 1px solid #00ffcc;
+      padding: 20px;
+      border-radius: 10px;
+      color: #00ffcc;
+      z-index: 1001;
+      width: 300px;
+      font-size: 0.9rem;
+      overflow-y: auto;
+      max-height: 80%;
+      text-align: left;
+    }
+
+    .dialog-close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: transparent;
+      border: none;
+      color: #00ffcc;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .dialog-box::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .dialog-box::-webkit-scrollbar-thumb {
+      background-color: #00ffcc;
+      border-radius: 3px;
+    }
+
+    /* Chart container */
+    .chart-container {
+      background-color: #1b1b1b;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px #00ffcc88;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #powerModeChart {
+      width: 100%;
+      height: 300px;
+    }
+  </style>
+</head>
+<body>
+    <audio id="loadingSound" src="loading.mp3" loop></audio>
+  <header>
+    <div class="icon-bar">
+      <span>🔒 Secure</span>
+      <span>📶 Signal OK</span>
+      <span>📟 Walkie Connected</span>
+    </div>
+    <div class="status-bar">
+      <div class="status-item">Device: BF-888S</div>
+      <div class="status-item" id="clock"></div>
+    </div>
+  </header>
+
+  <main>
+    <div class="card">
+      <h2>Frequency Channel</h2>
+      <select id="frequency">
+        <option>Channel 1 - 462.5625 MHz</option>
+        <option>Channel 2 - 462.5875 MHz</option>
+        <option>Channel 3 - 462.6125 MHz</option>
+      </select>
+    </div>
+    <div class="card">
+      <h2>VOX Sensitivity</h2>
+      <input type="range" id="vox-sensitivity" min="1" max="10" value="5">
+    </div>
+    <div class="card">
+      <h2>Privacy Tone (CTCSS)</h2>
+      <select id="privacy-tone">
+        <option>Off</option>
+        <option>67.0 Hz</option>
+        <option>71.9 Hz</option>
+        <option>74.4 Hz</option>
+      </select>
+    </div>
+    <div class="card">
+      <h2>Power Mode</h2>
+      <select id="power-mode">
+        <option>Low</option>
+        <option>High</option>
+      </select>
+    </div>
+    <div class="card">
+      <h2>Timeout Timer</h2>
+      <input type="range" id="timeout-timer" min="30" max="180" step="10" value="60">
+    </div>
+    <div class="card">
+      <h2>Keypad Beep</h2>
+      <select id="keypad-beep">
+        <option>Enabled</option>
+        <option>Disabled</option>
+      </select>
+    </div>
+    <div class="card">
+      <h2>Scrambler</h2>
+      <select id="scrambler">
+        <option>Off</option>
+        <option>Mode 1</option>
+        <option>Mode 2</option>
+      </select>
+    </div>
+    <div class="card">
+      <h2>Firmware Version</h2>
+      <button onclick="checkFirmware()">Check</button>
+    </div>
+    <div class="card">
+      <h2>Show Current Settings</h2>
+      <button onclick="showCurrentSettings()">Show Settings</button>
+    </div>
+
+    <!-- New Chart Section -->
+    <div class="chart-container">
+      <h2>Power Mode Statistics</h2>
+      <canvas id="powerModeChart"></canvas>
+    </div>
+
+    <div class="save-btn-container">
+      <button onclick="startSaveProgress()">💾 Save Settings</button>
+    </div>
+  </main>
+
+  <div id="overlay">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill">0%</div>
+    </div>
+    <div class="log-text" id="logText">Saving settings to Walkie...</div>
+    <button class="close-btn" id="closeBtn" style="display:none" onclick="closeOverlay()">Close</button>
+  </div>
+
+  <div class="dialog-box" id="dialogBox">
+    <button class="dialog-close-btn" onclick="closeDialog()">✖</button>
+    <div id="dialogText"></div>
+    <!-- Password Input Section -->
+    <div id="passwordSection" style="display: none;">
+      <input type="password" id="passwordInput" placeholder="Enter Password" />
+      <button onclick="checkPassword()">Submit</button>
+      <p id="passwordError" style="color: red; display: none;">Password wrong!</p>
+    </div>
+  </div>
+  
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    function playLoadingSound() {
+  const audio = document.getElementById('loadingSound');
+  audio.currentTime = 0;
+  audio.play().catch(e => console.warn("Autoplay prevented:", e));
+}
+
+function stopLoadingSound() {
+  const audio = document.getElementById('loadingSound');
+  audio.pause();
+  audio.currentTime = 0;
+}
+
+    const ctx = document.getElementById('powerModeChart').getContext('2d');
+    const powerModeChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Low Power', 'High Power'],
+        datasets: [{
+          label: 'Power Mode Usage',
+          data: [5, 3], // You can change these values based on real data
+          backgroundColor: ['#00ffcc', '#ffcc00'],
+          borderColor: ['#00ffcc', '#ffcc00'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        },
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top'
+          }
+        }
+      }
+    });
+
+    function updateClock() {
+      const now = new Date();
+      const formatted = now.toLocaleTimeString() + ' | ' + now.toLocaleDateString();
+      document.getElementById('clock').textContent = formatted;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function startSaveProgress() {
+  const overlay = document.getElementById('overlay');
+  const logText = document.getElementById('logText');
+  const closeBtn = document.getElementById('closeBtn');
+  const progressFill = document.getElementById('progressFill');
+  const dialogBox = document.getElementById('dialogBox');
+  const passwordSection = document.getElementById('passwordSection');
+  const passwordInput = document.getElementById('passwordInput');
+  const passwordError = document.getElementById('passwordError');
+
+  // Show the password prompt
+  dialogBox.style.display = 'flex';
+  passwordSection.style.display = 'block';
+  logText.innerText = 'Enter password to save settings:';
+  closeBtn.style.display = 'none';
+  passwordError.style.display = 'none'; // Hide error message initially
+}
+
+function checkPassword() {
+  const passwordInput = document.getElementById('passwordInput').value;
+  const logText = document.getElementById('logText');
+  const passwordError = document.getElementById('passwordError');
+  const passwordSection = document.getElementById('passwordSection');
+  const progressFill = document.getElementById('progressFill');
+  const overlay = document.getElementById('overlay');
+  const closeBtn = document.getElementById('closeBtn');
+
+  // Correct password
+  const correctPassword = 'rag@0728@1971';
+
+  if (passwordInput === correctPassword) {
+    // Hide password section and start the save process
+    passwordSection.style.display = 'none';
+    logText.innerText = 'Saving settings to Walkie...';
+
+    // Show progress bar and close button
+    overlay.style.display = 'flex';
+    closeBtn.style.display = 'none';
+    progressFill.style.width = '0%';
+    progressFill.textContent = '0%';
+    progressFill.style.animation = 'none';
+    void progressFill.offsetWidth;
+    progressFill.style.animation = 'fillProgress 5s forwards';
+
+    playLoadingSound();
+
+    let percent = 0;
+    const interval = setInterval(() => {
+      percent += 2;
+      progressFill.style.width = percent + '%';
+      progressFill.textContent = percent + '%';
+      if (percent >= 100) {
+        clearInterval(interval);
+        stopLoadingSound();
+        logText.innerText = '✅ Changes saved to Walkie!';
+        closeBtn.style.display = 'inline-block'; // Show close button
+      }
+    }, 100);
+  } else {
+    // Show password wrong message
+    passwordError.style.display = 'block';
+  }
+}
+
+    function closeOverlay() {
+      const overlay = document.getElementById('overlay');
+      overlay.style.display = 'none';
+    }
+
+    function checkFirmware() {
+  const overlay = document.getElementById('overlay');
+  const logText = document.getElementById('logText');
+  const progressFill = document.getElementById('progressFill');
+  const closeBtn = document.getElementById('closeBtn');
+
+  overlay.style.display = 'flex';
+  logText.innerText = 'Checking firmware...';
+  closeBtn.style.display = 'none';
+  progressFill.style.width = '0%';
+  progressFill.textContent = '0%';
+  progressFill.style.animation = 'none';
+  void progressFill.offsetWidth;
+  progressFill.style.animation = 'fillProgress 5s forwards';
+
+  // Play sound only once at the start
+  playLoadingSound();
+
+  let percent = 0;
+  const interval = setInterval(() => {
+    percent += 2;
+    progressFill.style.width = percent + '%';
+    progressFill.textContent = percent + '%';
+    if (percent >= 100) {
+      clearInterval(interval);
+      stopLoadingSound(); // Stop sound when progress reaches 100%
+    }
+  }, 100);
+
+  setTimeout(() => {
+    logText.innerText = 'Firmware v3.2 is up to date.';
+    logText.classList.add('blinking');
+    closeBtn.style.display = 'inline-block';
+  }, 5500);
+}
+
+function showCurrentSettings() {
+  const overlay = document.getElementById('overlay');
+  const logText = document.getElementById('logText');
+  const progressFill = document.getElementById('progressFill');
+  const closeBtn = document.getElementById('closeBtn');
+
+  const frequency = document.getElementById('frequency').value;
+  const voxSensitivity = document.getElementById('vox-sensitivity').value;
+  const privacyTone = document.getElementById('privacy-tone').value;
+  const powerMode = document.getElementById('power-mode').value;
+  const timeoutTimer = document.getElementById('timeout-timer').value;
+  const keypadBeep = document.getElementById('keypad-beep').value;
+  const scrambler = document.getElementById('scrambler').value;
+
+  // Show overlay and hide the close button initially
+  overlay.style.display = 'flex';
+  logText.classList.remove('blinking');
+  logText.innerText = 'Fetching current settings...';
+  closeBtn.style.display = 'none';
+  progressFill.style.width = '0%';
+  progressFill.textContent = '0%';
+  progressFill.style.animation = 'none';
+  void progressFill.offsetWidth;
+  progressFill.style.animation = 'fillProgress 5s forwards';
+
+  // Play loading sound only once at the start
+  playLoadingSound();
+
+  let percent = 0;
+  const interval = setInterval(() => {
+    percent += 2;
+    progressFill.style.width = percent + '%';
+    progressFill.textContent = percent + '%';
+    if (percent >= 100) {
+      clearInterval(interval);
+      stopLoadingSound(); // Stop sound when progress reaches 100%
+    }
+  }, 100);
+
+  // Once progress is complete, display the settings in the dialog
+  setTimeout(() => {
+    logText.innerText = 'Current settings retrieved successfully.';
+    closeBtn.style.display = 'inline-block';
+
+    // Show dialog box with the current settings
+    const dialogBox = document.getElementById('dialogBox');
+    const dialogText = document.getElementById('dialogText');
+
+    dialogText.innerHTML = `
+      <h3>Current Settings:</h3>
+      <p><strong>Frequency Channel:</strong> ${frequency}</p>
+      <p><strong>VOX Sensitivity:</strong> ${voxSensitivity}</p>
+      <p><strong>Privacy Tone (CTCSS):</strong> ${privacyTone}</p>
+      <p><strong>Power Mode:</strong> ${powerMode}</p>
+      <p><strong>Timeout Timer:</strong> ${timeoutTimer} seconds</p>
+      <p><strong>Keypad Beep:</strong> ${keypadBeep}</p>
+      <p><strong>Scrambler:</strong> ${scrambler}</p>
+    `;
+
+    // Display the dialog box
+    dialogBox.style.display = 'flex';
+
+  }, 5500);
+}
+
+    function closeDialog() {
+      const dialogBox = document.getElementById('dialogBox');
+      dialogBox.style.display = 'none';
+    }
+  </script>
+</body>
+</html>
