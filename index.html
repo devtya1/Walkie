@@ -2,143 +2,167 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Connect Walkie</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Research & Analysis Wing</title>
   <style>
-    /* General Reset */
-    * {
+    body {
       margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+      font-family: 'Courier New', Courier, monospace;
+      background-color: #0f0f0f;
+      color: #00ffcc;
+      overflow: hidden;
     }
 
-    body {
-      background-color: #0a0a0a;
-      color: #fff;
-      font-family: 'Arial', sans-serif;
+    header {
+      position: sticky;
+      top: 0;
+      background-color: #000;
+      text-align: center;
+      padding: 1rem;
+      font-size: 2rem;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0, 255, 204, 0.4);
+      z-index: 1000;
+    }
+
+    #loginContainer, #mainContainer {
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      overflow: hidden;
-      margin: 0;
-      padding-top: 80px; /* Space for fixed heading */
+      height: calc(100vh - 80px);
     }
 
-    /* Fixed Header */
-    .heading {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      background-color: #0a0a0a;
+    #loginForm {
+      background-color: #111;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #00ffcc44;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 300px;
+    }
+
+    input[type="password"] {
+      padding: 0.7rem;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      background-color: #222;
       color: #00ffcc;
-      font-size: 2.5rem;
-      text-align: center;
-      text-transform: uppercase;
-      letter-spacing: 3px;
-      font-family: 'Courier New', Courier, monospace;
-      border-bottom: 3px solid #00ffcc;
-      padding: 10px 0;
-      z-index: 1000;
+    }
+
+    button {
+      background: #00ffcc;
+      border: none;
+      color: #0f0f0f;
+      padding: 0.8rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    button:hover {
+      background: #00ccb3;
     }
 
     #container {
       display: flex;
-      justify-content: center;
-      align-items: center;
       text-align: center;
-      flex-direction: column;
-      max-width: 800px;
-      width: 100%;
-      padding-top: 20px;
-    }
-
-    h1 {
-      font-size: 3rem;
-      color: #00ffcc;
-      margin-bottom: 2rem;
-      font-family: 'Courier New', Courier, monospace;
-      text-shadow: 0 0 10px #00ffcc;
-    }
-
-    #connectBtn {
-      background: linear-gradient(45deg, #00ffcc, #00ccb3);
-      border: none;
-      color: #0f0f0f;
-      padding: 1.5rem 3rem;
-      font-size: 1.2rem;
-      border-radius: 10px;
-      cursor: pointer;
-      box-shadow: 0 0 15px rgba(0, 255, 204, 0.8);
-      transition: all 0.3s ease;
-    }
-
-    #connectBtn:hover {
-      background: linear-gradient(45deg, #00ccb3, #00ffcc);
-      box-shadow: 0 0 20px rgba(0, 255, 204, 1);
-    }
-
-    #animationArea {
-      margin-top: 2rem;
-      text-align: left;
-      white-space: pre-wrap;
-      max-width: 600px;
-      font-size: 1.2rem;
-      line-height: 1.6;
-      opacity: 0;
-      transition: opacity 1s ease-in;
     }
 
     #walkie {
-      width: 160px;
-      height: 320px;
+      width: 150px;
+      height: 300px;
       background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Walkie_Talkie_Antenna.svg/512px-Walkie_Talkie_Antenna.svg.png');
       background-size: cover;
-      margin-bottom: 1.5rem;
-      transition: transform 0.3s ease;
+      margin-right: 2rem;
     }
 
-    #walkie:hover {
-      transform: scale(1.05);
+    #animationArea {
+      margin-top: 1rem;
+      white-space: pre-line;
+      max-width: 600px;
+      font-size: 1rem;
+      line-height: 1.4;
+      opacity: 0;
+      transition: opacity 1s ease-in;
+      text-align: left;
     }
 
     #batteryBar {
-      position: relative;
-      width: 200px;
+      margin-top: 1rem;
+      width: 100%;
+      max-width: 300px;
       height: 30px;
       background-color: #444;
-      border-radius: 5px;
-      margin-top: 20px;
-      margin-bottom: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-inline: auto;
     }
 
     #batteryFill {
       height: 100%;
       width: 0;
       background-color: #00ffcc;
-      border-radius: 5px;
       transition: width 0.7s ease-in-out;
+    }
+
+    #errorMsg {
+      color: #ff5555;
+      font-size: 0.9rem;
+      text-align: center;
+      display: none;
     }
 
   </style>
 </head>
 <body>
-  <!-- Fixed Heading -->
-  <div class="heading">Research & Analysis Wing</div>
 
-  <div id="container">
-    <div id="walkie"></div>
-    
-    <h1>Walkie-Link Terminal</h1>
+  <header>Research & Analysis Wing</header>
 
-    <button id="connectBtn">Connect Walkie</button>
+  <!-- Login Form -->
+  <div id="loginContainer">
+    <form id="loginForm">
+      <h2>Agent Access</h2>
+      <input type="password" id="passwordInput" placeholder="Enter Access Code" />
+      <button type="submit">Login</button>
+      <div id="errorMsg">Incorrect Password</div>
+    </form>
+  </div>
 
-    <div id="animationArea"></div>
-
-    <div id="batteryBar"><div id="batteryFill"></div></div>
+  <!-- Main Walkie Connect Section -->
+  <div id="mainContainer" style="display: none;">
+    <div id="container">
+      <div id="walkie"></div>
+      <div>
+        <h2>Walkie-Link Terminal</h2>
+        <button id="connectBtn">Connect Walkie</button>
+        <div id="animationArea"></div>
+        <div id="batteryBar"><div id="batteryFill"></div></div>
+      </div>
+    </div>
   </div>
 
   <script>
+    const PASSWORD = "rag@0728@1971";
+    const loginForm = document.getElementById('loginForm');
+    const passwordInput = document.getElementById('passwordInput');
+    const errorMsg = document.getElementById('errorMsg');
+    const loginContainer = document.getElementById('loginContainer');
+    const mainContainer = document.getElementById('mainContainer');
+
+    loginForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      if (passwordInput.value === PASSWORD) {
+        loginContainer.style.display = 'none';
+        mainContainer.style.display = 'flex';
+      } else {
+        errorMsg.style.display = 'block';
+      }
+    });
+
     const steps = [
       '🔌 Connecting to device...',
       '🔍 Scanning COM ports...',
@@ -162,11 +186,9 @@
 
       steps.forEach((step, index) => {
         setTimeout(() => {
-          animationArea.innerText += step + '\n'; // Adds a new line for each step
-          // Fill the battery as the animation progresses
-          batteryFill.style.width = (index + 1) * 11.1 + '%';
+          animationArea.innerText += step + '\n';
+          batteryFill.style.width = ((index + 1) / steps.length * 100) + '%';
           if (index === steps.length - 1) {
-            // Wait for 0.3s then redirect to dashboard
             setTimeout(() => {
               window.location.href = 'dashboard.html';
             }, 300);
