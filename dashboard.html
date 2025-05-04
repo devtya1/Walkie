@@ -5,6 +5,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Walkie Talkie Hacker Dashboard</title>
   <style>
+    .dialog {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #0e0e1a;
+  padding: 20px;
+  border-radius: 12px;
+  color: #00f0ff;
+  box-shadow: 0 0 20px #00f0ff66;
+  width: 350px;
+}
+
+.dialog-content h3 {
+  margin-top: 0;
+}
+
+.meter {
+  margin: 8px 0;
+}
+
+.close {
+  float: right;
+  font-size: 22px;
+  cursor: pointer;
+  color: #fff;
+}
+    .diagnostics {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 25, 35, 0.95);
+  padding: 20px;
+  border-radius: 15px;
+  color: #00f0ff;
+  z-index: 1000;
+  display: none;
+  width: 300px;
+  box-shadow: 0 0 20px #00f0ff80;
+}
+
+.hidden {
+  display: none;
+}
+
+.meter {
+  margin: 10px 0;
+  font-size: 14px;
+  background: #0a1a2a;
+  padding: 10px;
+  border-radius: 8px;
+}
     body {
       background: url('https://www.transparenttextures.com/patterns/grid-2x2.png'), linear-gradient(135deg, #0f0f0f, #111);
       color: #00ffcc;
@@ -241,6 +296,135 @@
       width: 100%;
       height: 300px;
     }
+
+    .reset-btn-container {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .log-text {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .reset-log-text {
+      margin-top: 20px;
+      text-align: center;
+      font-style: italic;
+    }
+
+    /* Scanner Radar Styles */
+.radar {
+  width: 200px;
+  height: 200px;
+  margin: 20px auto;
+  border: 2px solid #0f0;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(circle, rgba(0,255,0,0.2) 0%, rgba(0,0,0,0.9) 100%);
+}
+
+.radar::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: conic-gradient(from 0deg, transparent 0%, #0f0 10%, transparent 20%);
+  animation: radarSweep 2s linear infinite;
+  border-radius: 50%;
+  opacity: 0.5;
+}
+
+@keyframes radarSweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Radar container stays fixed size */
+.radar-container {
+  width: 220px;
+  height: 220px;
+  position: relative;
+  margin: 20px 0;
+}
+
+/* Actual spinning radar */
+.radar {
+  width: 100%;
+  height: 100%;
+  border: 2px solid #0ff; /* Neon blue border */
+  border-radius: 50%;
+  position: absolute;
+  background: radial-gradient(circle, rgba(0,255,255,0.1) 0%, rgba(0,0,0,0.9) 100%);
+  overflow: hidden;
+}
+
+.radar::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: conic-gradient(from 0deg, transparent 0%, #0ff 10%, transparent 20%);
+  animation: radarSweep 2s linear infinite;
+  border-radius: 50%;
+  opacity: 0.4;
+}
+
+.radar-dot {
+  width: 10px;
+  height: 10px;
+  background-color: #0ff;
+  border-radius: 50%;
+  position: absolute;
+  animation: pulse 2.5s ease-in-out infinite;
+  box-shadow: 0 0 8px #0ff;
+  cursor: pointer;
+}
+
+/* Pulse animation for the dots */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 1;
+  }
+}
+
+/* Tooltip on hover */
+.radar-dot::after {
+  content: attr(data-info);
+  position: absolute;
+  bottom: calc(100% + 10px); /* more space above dot */
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111;
+  color: #0ff;
+  padding: 6px 10px;
+  font-size: 13px;
+  white-space: pre-line; /* allows line breaks */
+  border-radius: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out;
+  z-index: 100;
+}
+
+.radar-dot:hover::after {
+  opacity: 1;
+}
+
+.scanner-content {
+  width: 100%;
+  height: 300px;
+  position: relative;
+  overflow: visible; /* Allow tooltips to overflow */
+}
   </style>
 </head>
 <body>
@@ -256,7 +440,7 @@
       <div class="status-item" id="clock"></div>
     </div>
   </header>
-
+  <button onclick="showDiagnostics()">Open Diagnostics</button>
   <main>
     <div class="card">
       <h2>Frequency Channel</h2>
@@ -320,6 +504,23 @@
       <canvas id="powerModeChart"></canvas>
     </div>
 
+    <div class="card">
+        <h2>Reset Device</h2>
+        <button onclick="startResetProgress()">🔄 Reset</button>
+      </div>
+      <div class="card">
+        <h2>Scanner</h2>
+        <button onclick="openScanner()">📡 Scan</button>
+      </div>
+      <div class="card">
+        <h2>Diagnostics</h2>
+        <button id="diagnosticsToggle" class="btn neon">Enter Diagnostics Mode</button>
+      </div>
+      <div id="diagnosticsPanel" class="diagnostics hidden">
+        <h2>Device Diagnostics</h2>
+        <div id="diagnosticsContent"></div>
+        <button id="closeDiagnostics" class="btn neon">Close</button>
+      </div>
     <div class="save-btn-container">
       <button onclick="startSaveProgress()">💾 Save Settings</button>
     </div>
@@ -343,10 +544,24 @@
       <p id="passwordError" style="color: red; display: none;">Password wrong!</p>
     </div>
   </div>
+
+  <!-- Scanner Dialog -->
+<div class="dialog-box" id="scannerDialog">
+    <button class="dialog-close-btn" onclick="closeScanner()">✖</button>
+    <h3 style="color: #0f0;">Radio Scanner</h3>
+    <div style="display: flex; flex-direction: column; align-items: center;">
+        <div id="radar" class="radar-container">
+          <div class="radar"></div>
+        </div>
+        <ul id="radioList" class="radio-list"></ul>
+      </div>
+    <ul id="radioList" style="color: lime; margin-top: 15px; font-family: monospace;"></ul>
+  </div>  
   
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
+    reset = false;
     function playLoadingSound() {
   const audio = document.getElementById('loadingSound');
   audio.currentTime = 0;
@@ -395,6 +610,70 @@ function stopLoadingSound() {
     setInterval(updateClock, 1000);
     updateClock();
 
+    function openScanner() {
+  const scannerDialog = document.getElementById('scannerDialog');
+  const radar = document.querySelector('.radar');
+  const radioList = document.getElementById('radioList');
+  radar.querySelectorAll('.radar-dot').forEach(dot => dot.remove());
+  radioList.innerHTML = '';
+  scannerDialog.style.display = 'flex';
+
+  let found = 0;
+  const fakeRadios = ['VX-3001', 'Motorola XTL5000', 'Kenwood PKT-23', 'ICOM IC-F4001', 'Baofeng UV-5R'];
+
+  const interval = setInterval(() => {
+    if (found >= fakeRadios.length) {
+      clearInterval(interval);
+      return;
+    }
+
+    const name = fakeRadios[found];
+    const posX = Math.random() * 200;
+    const posY = Math.random() * 200;
+
+    // Add text to list
+    const listItem = document.createElement('li');
+    listItem.textContent = `📶 ${name} detected at X:${Math.floor(posX)} Y:${Math.floor(posY)}`;
+    radioList.appendChild(listItem);
+
+    // Add dot to radar
+    // Add dot to radar with tooltip
+const dot = document.createElement('div');
+dot.className = 'radar-dot';
+dot.style.left = `${posX}px`;
+dot.style.top = `${posY}px`;
+dot.setAttribute('data-info', `${name}\nSignal: ${Math.floor(Math.random() * 100)}%`);
+radar.appendChild(dot);
+
+    found++;
+  }, 1000);
+}
+
+function closeScanner() {
+  const scannerDialog = document.getElementById('scannerDialog');
+  scannerDialog.style.display = 'none';
+}
+
+    function startResetProgress() {
+      reset = true;
+      const overlay = document.getElementById('overlay');
+      const resetLogText = document.getElementById('resetLogText');
+      const logText = document.getElementById('logText');
+      const closeBtn = document.getElementById('closeBtn');
+      const progressFill = document.getElementById('progressFill');
+      const dialogBox = document.getElementById('dialogBox');
+      const passwordSection = document.getElementById('passwordSection');
+      const passwordInput = document.getElementById('passwordInput');
+      const passwordError = document.getElementById('passwordError');
+
+      // Show the password prompt for reset
+      dialogBox.style.display = 'flex';
+  passwordSection.style.display = 'block';
+  logText.innerText = 'Enter password to reset device';
+  closeBtn.style.display = 'none';
+  passwordError.style.display = 'none'; // Hide reset log text initially
+    }
+
     function startSaveProgress() {
   const overlay = document.getElementById('overlay');
   const logText = document.getElementById('logText');
@@ -426,6 +705,34 @@ function checkPassword() {
   const correctPassword = 'rag@0728@1971';
 
   if (passwordInput === correctPassword) {
+    if(reset === true){
+        passwordSection.style.display = 'none';
+    logText.innerText = 'Reseting Walkie...';
+
+    // Show progress bar and close button
+    overlay.style.display = 'flex';
+    closeBtn.style.display = 'none';
+    progressFill.style.width = '0%';
+    progressFill.textContent = '0%';
+    progressFill.style.animation = 'none';
+    void progressFill.offsetWidth;
+    progressFill.style.animation = 'fillProgress 5s forwards';
+
+    playLoadingSound();
+
+    let percent = 0;
+    const interval = setInterval(() => {
+      percent += 2;
+      progressFill.style.width = percent + '%';
+      progressFill.textContent = percent + '%';
+      if (percent >= 100) {
+        clearInterval(interval);
+        stopLoadingSound();
+        logText.innerText = '✅ Walkie Reset Successful!';
+        closeBtn.style.display = 'inline-block'; // Show close button
+      }
+    }, 100);
+    }else{
     // Hide password section and start the save process
     passwordSection.style.display = 'none';
     logText.innerText = 'Saving settings to Walkie...';
@@ -453,7 +760,7 @@ function checkPassword() {
         closeBtn.style.display = 'inline-block'; // Show close button
       }
     }, 100);
-  } else {
+  }}else {
     // Show password wrong message
     passwordError.style.display = 'block';
   }
@@ -569,6 +876,75 @@ function showCurrentSettings() {
       const dialogBox = document.getElementById('dialogBox');
       dialogBox.style.display = 'none';
     }
+    document.addEventListener('DOMContentLoaded', () => {
+  const diagnosticsToggle = document.getElementById('diagnosticsToggle');
+  const diagnosticsPanel = document.getElementById('diagnosticsPanel');
+  const closeDiagnostics = document.getElementById('closeDiagnostics');
+  const diagnosticsContent = document.getElementById('diagnosticsContent');
+
+  let diagnosticsMode = false;
+
+  diagnosticsToggle.addEventListener('click', () => {
+    diagnosticsMode = !diagnosticsMode;
+    diagnosticsPanel.style.display = diagnosticsMode ? 'block' : 'none';
+  });
+
+  closeDiagnostics.addEventListener('click', () => {
+    diagnosticsMode = false;
+    diagnosticsPanel.style.display = 'none';
+  });
+
+  // Function you can call to show diagnostics for a device
+  window.showDiagnostics = function(deviceId) {
+    diagnosticsContent.innerHTML = `
+  <h3>Baofeng BF-888S</h3>
+  <div class="meter">📶 Signal Strength: 87%</div>
+  <div class="meter">🔋 Battery Level: 76%</div>
+  <div class="meter">🔒 Encryption: Locked</div>
+  <div class="meter">🌡️ Temperature: 36.5°C</div>
+  <div class="meter">📡 Frequency: 462.5625 MHz</div>
+  <div class="meter">🔧 Mode: UHF Analog</div>
+  <div class="meter">🛠️ Firmware: v1.2.5</div>
+`;
+
+    diagnosticsPanel.style.display = 'block';
+    diagnosticsMode = true;
+  };
+});
+
+function showDiagnostics() {
+  const dialog = document.getElementById("diagnosticsDialog");
+  const diagnosticsContent = document.getElementById("diagnosticsContent");
+
+  // Static Baofeng BF-888S info
+  diagnosticsContent.innerHTML = `
+    <h3>Baofeng BF-888S</h3>
+    <div class="meter">📶 Signal Strength: 87%</div>
+    <div class="meter">🔋 Battery Level: 76%</div>
+    <div class="meter">🔒 Encryption: Locked</div>
+    <div class="meter">🌡️ Temperature: 36.5°C</div>
+    <div class="meter">📡 Frequency: 462.5625 MHz</div>
+    <div class="meter">🔧 Mode: UHF Analog</div>
+    <div class="meter">🛠️ Firmware: v1.2.5</div>
+  `;
+
+  dialog.style.display = "block";
+}
+
+function closeDiagnostics() {
+  document.getElementById("diagnosticsDialog").style.display = "none";
+}
+
   </script>
+  <!-- Device Diagnostics Dialog -->
+<div id="diagnosticsDialog" class="dialog">
+    <div class="dialog-content">
+      <span class="close" onclick="closeDiagnostics()">&times;</span>
+      <h2>Device Diagnostics</h2>
+      <div id="diagnosticsContent">
+        <!-- Static Baofeng info will go here -->
+      </div>
+    </div>
+  </div>  
 </body>
 </html>
